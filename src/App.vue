@@ -9,31 +9,41 @@
 
   <main>
     <div class="actions">
-      <button @click="showTip = !showTip">{{ btnLabel }}</button>
-      <button
-        :disabled="hardMode"
-        @click="makeItHarder"
-      >Усложнить</button>
-      <button @click="refresh">Разбросать заново</button>
+      <button @click="showTip = !showTip">{{ tipBtnLabel }}</button>
+      <button @click="toggleMode">{{ modeBtnLabel }}</button>
+      <button @click="refresh">Разбросать пазл</button>
     </div>
 
     <GameField
       :key="fieldKey"
       :showTip="showTip"
       :hardMode="hardMode"
+      @win="showCongrats = true"
     />
   </main>
+  <div id="modal"></div>
+
+  <Modal
+    v-model="showCongrats"
+    :close="() => { showCongrats = false }"
+  >
+    <div class="modal">
+      <CongratsPuzzle1 />
+    </div>
+  </Modal>
 </template>
 
 <script>
 import GameField from '@/components/GameField.vue'
+import CongratsPuzzle1 from '@/components/congrats/CongratsPuzzle1.vue'
 export default {
-  components: { GameField },
+  components: { GameField, CongratsPuzzle1 },
   data() {
     return {
       showTip: false,
       hardMode: false,
-      fieldKey: 0
+      fieldKey: 0,
+      showCongrats: false
     }
   },
 
@@ -42,8 +52,11 @@ export default {
   },
 
   computed: {
-    btnLabel() {
+    tipBtnLabel() {
       return this.showTip ? 'Убрать подсказку' : 'Показать подсказку'
+    },
+    modeBtnLabel() {
+      return this.hardMode ? 'Упростить' : 'Усложнить'
     }
   },
 
@@ -58,8 +71,8 @@ export default {
       this.fieldKey++
       this.showTip = false
     },
-    makeItHarder() {
-      this.hardMode = true
+    toggleMode() {
+      this.hardMode = !this.hardMode
       this.refresh()
     }
   }
@@ -113,5 +126,17 @@ button:disabled:hover {
 
 button:disabled {
   opacity: 0.8;
+}
+
+.modal {
+  width: 450px;
+  padding: 30px;
+  box-sizing: border-box;
+  background-color: #fff;
+  font-size: 20px;
+  text-align: center;
+  border: 10px solid #0c67ae;
+  color: #0c67ae;
+  background-color: lightblue;
 }
 </style>

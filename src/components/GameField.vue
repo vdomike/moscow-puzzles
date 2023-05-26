@@ -32,10 +32,6 @@
         @dragmove="omImageDragMove"
         @click="onImageClick"
       />
-      <v-text
-        v-if="isWin"
-        :config="textConfig"
-      />
     </v-layer>
     <v-layer ref="tempLayer"></v-layer>
   </v-stage>
@@ -113,15 +109,9 @@ export default {
       imagesConfigs: {},
       previousShape: null,
       boardX: 0, // величина, на которую много завязано
-      isWin: false
     }
   },
   watch: {
-    isWin(val) {
-      if (val) {
-        Object.values(this.imagesConfigs).forEach(config => config.draggable = false)
-      }
-    },
     showTip(val) {
       if (val) {
         this.tipOpacityTransition.play()
@@ -139,7 +129,6 @@ export default {
     this.generateCells()
     this.generateImages()
     this.generateTip()
-    console.log('this.$refs', this.$refs)
   },
   methods: {
     generateCells() {
@@ -165,7 +154,7 @@ export default {
       for (let i = 0; i < this.cellCount; i++) {
         const image = new window.Image()
         const imgNum = imgOrderArr.shift()
-        const imgUrl = new URL(`/public/puzzle/${imgNum}.jpg`, import.meta.url).href
+        const imgUrl = new URL(`/public/puzzle/vdnkh/${imgNum}.jpg`, import.meta.url).href
         image.src = imgUrl
 
         const imageId = `image-${imgNum}`
@@ -204,7 +193,7 @@ export default {
     },
     generateTip() {
       const image = new window.Image()
-      const imgUrl = new URL('/public/puzzle/17.jpg', import.meta.url).href
+      const imgUrl = new URL('/public/puzzle/vdnkh/tip.jpg', import.meta.url).href
       image.src = imgUrl
       image.onload = () => {
         this.tipConfig = {
@@ -226,7 +215,12 @@ export default {
       return shape?.attrs.id?.includes('image')
     },
     checkIsWin() {
-      this.isWin = Object.values(this.gameState).every(({ cellGuessed, rotationGuessed }) => cellGuessed && rotationGuessed)
+      const isWin = Object.values(this.gameState).every(({ cellGuessed, rotationGuessed }) => cellGuessed && rotationGuessed)
+
+      if (isWin) {
+        Object.values(this.imagesConfigs).forEach(config => config.draggable = false)
+        this.$emit('win')
+      }
     }
   }
 }
