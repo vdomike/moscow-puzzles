@@ -13,7 +13,7 @@
 
 <script>
 export default {
-  name: 'CongratsPuzzle1'
+  name: 'CongratsVdnkh'
 }
 </script>
 

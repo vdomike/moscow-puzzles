@@ -13,4 +13,13 @@ export const PRIMARY_COLOR = '#0c67ae'
 export const SECONDARY_COLOR = 'lightblue'
 export const HIGHLIGHT_COLOR = '#cce2ea'
 
-export const LOCATIONS = ['vdnkh', 'moscow-city']
+export const LOCATIONS = [
+  {
+    name: 'vdnkh',
+    congratsComponent: 'CongratsVdnkh'
+  },
+  {
+    name: 'moscow-city',
+    congratsComponent: 'CongratsMoscowCity'
+  }
+]

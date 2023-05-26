@@ -20,7 +20,7 @@
       :showTip="showTip"
       :hardMode="hardMode"
       :location="currentLocation"
-      @win="showCongrats = true"
+      @win="win"
     />
   </main>
   <div id="modal"></div>
@@ -30,18 +30,19 @@
     :close="() => { showCongrats = false }"
   >
     <div class="modal">
-      <CongratsPuzzle1 />
+      <Component :is="currentCongratsComponent" />
     </div>
   </Modal>
 </template>
 
 <script>
 import GameField from '@/components/GameField.vue'
-import CongratsPuzzle1 from '@/components/congrats/CongratsPuzzle1.vue'
+import CongratsVdnkh from '@/components/congrats/CongratsVdnkh.vue'
+import CongratsMoscowCity from '@/components/congrats/CongratsMoscowCity.vue'
 import { LOCATIONS } from '@/helpers/constants'
 
 export default {
-  components: { GameField, CongratsPuzzle1 },
+  components: { GameField, CongratsVdnkh, CongratsMoscowCity },
   data() {
     return {
       showTip: false,
@@ -64,7 +65,10 @@ export default {
       return this.hardMode ? 'Упростить' : 'Усложнить'
     },
     currentLocation() {
-      return LOCATIONS[this.currentLocationNum]
+      return LOCATIONS[this.currentLocationNum].name
+    },
+    currentCongratsComponent() {
+      return LOCATIONS[this.currentLocationNum].congratsComponent
     }
   },
 
@@ -86,6 +90,10 @@ export default {
     changeLocation() {
       this.currentLocationNum = (this.currentLocationNum + 1) % LOCATIONS.length
       this.refresh()
+    },
+    win() {
+      this.showCongrats = true
+      this.changeLocation()
     }
   }
 }

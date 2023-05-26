@@ -223,8 +223,13 @@ export default {
 
       if (isWin) {
         Object.values(this.imagesConfigs).forEach(config => config.draggable = false)
+        this.playSound('/public/sounds/win.wav')
         this.$emit('win')
       }
+    },
+    playSound(url) {
+      const audio = new Audio(url);
+      audio.play();
     }
   }
 }
