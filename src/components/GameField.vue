@@ -59,6 +59,10 @@ import {
 export default {
   mixins: [eventHandlers, effects],
   props: {
+    location: {
+      type: String,
+      required: true
+    },
     showTip: {
       type: Boolean,
       default: false
@@ -154,7 +158,7 @@ export default {
       for (let i = 0; i < this.cellCount; i++) {
         const image = new window.Image()
         const imgNum = imgOrderArr.shift()
-        const imgUrl = new URL(`/public/puzzle/vdnkh/${imgNum}.jpg`, import.meta.url).href
+        const imgUrl = new URL(`/public/puzzle/${this.location}/${imgNum}.jpg`, import.meta.url).href
         image.src = imgUrl
 
         const imageId = `image-${imgNum}`
@@ -193,7 +197,7 @@ export default {
     },
     generateTip() {
       const image = new window.Image()
-      const imgUrl = new URL('/public/puzzle/vdnkh/tip.jpg', import.meta.url).href
+      const imgUrl = new URL(`/public/puzzle/${this.location}/tip.jpg`, import.meta.url).href
       image.src = imgUrl
       image.onload = () => {
         this.tipConfig = {

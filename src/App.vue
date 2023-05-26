@@ -12,12 +12,14 @@
       <button @click="showTip = !showTip">{{ tipBtnLabel }}</button>
       <button @click="toggleMode">{{ modeBtnLabel }}</button>
       <button @click="refresh">Разбросать пазл</button>
+      <button @click="changeLocation">Сменить локацию</button>
     </div>
 
     <GameField
       :key="fieldKey"
       :showTip="showTip"
       :hardMode="hardMode"
+      :location="currentLocation"
       @win="showCongrats = true"
     />
   </main>
@@ -36,6 +38,8 @@
 <script>
 import GameField from '@/components/GameField.vue'
 import CongratsPuzzle1 from '@/components/congrats/CongratsPuzzle1.vue'
+import { LOCATIONS } from '@/helpers/constants'
+
 export default {
   components: { GameField, CongratsPuzzle1 },
   data() {
@@ -43,7 +47,8 @@ export default {
       showTip: false,
       hardMode: false,
       fieldKey: 0,
-      showCongrats: false
+      showCongrats: false,
+      currentLocationNum: 0
     }
   },
 
@@ -57,6 +62,9 @@ export default {
     },
     modeBtnLabel() {
       return this.hardMode ? 'Упростить' : 'Усложнить'
+    },
+    currentLocation() {
+      return LOCATIONS[this.currentLocationNum]
     }
   },
 
@@ -73,6 +81,10 @@ export default {
     },
     toggleMode() {
       this.hardMode = !this.hardMode
+      this.refresh()
+    },
+    changeLocation() {
+      this.currentLocationNum = (this.currentLocationNum + 1) % LOCATIONS.length
       this.refresh()
     }
   }

@@ -12,3 +12,5 @@ export const CELL_OFFSET_Y = CELL_HEIGHT / 2
 export const PRIMARY_COLOR = '#0c67ae'
 export const SECONDARY_COLOR = 'lightblue'
 export const HIGHLIGHT_COLOR = '#cce2ea'
+
+export const LOCATIONS = ['vdnkh', 'moscow-city']
