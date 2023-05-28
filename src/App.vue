@@ -6,15 +6,16 @@
       src="./assets/logo.png"
     />
   </header>
+  <GameMenu
+    :hardMode="hardMode"
+    :showTip="showTip"
+    @changeLocation="changeLocation"
+    @toggleMode="toggleMode"
+    @refresh="refresh"
+    @toggleTip="showTip = !showTip"
+  />
 
   <main>
-    <div class="actions">
-      <button @click="showTip = !showTip">{{ tipBtnLabel }}</button>
-      <button @click="toggleMode">{{ modeBtnLabel }}</button>
-      <button @click="refresh">Разбросать пазл</button>
-      <button @click="changeLocation">Сменить локацию</button>
-    </div>
-
     <GameField
       :key="fieldKey"
       :showTip="showTip"
@@ -27,7 +28,8 @@
 
   <Modal
     v-model="showCongrats"
-    :close="() => { showCongrats = false }"
+    :close="closeCongrats"
+    :key="modalKey"
   >
     <div class="modal">
       <Component :is="currentCongratsComponent" />
@@ -37,19 +39,21 @@
 
 <script>
 import GameField from '@/components/GameField.vue'
+import GameMenu from '@/components/GameMenu.vue'
 import CongratsVdnkh from '@/components/congrats/CongratsVdnkh.vue'
 import CongratsMoscowCity from '@/components/congrats/CongratsMoscowCity.vue'
 import { LOCATIONS } from '@/helpers/constants'
 
 export default {
-  components: { GameField, CongratsVdnkh, CongratsMoscowCity },
+  components: { GameField, GameMenu, CongratsVdnkh, CongratsMoscowCity },
   data() {
     return {
       showTip: false,
       hardMode: false,
       fieldKey: 0,
       showCongrats: false,
-      currentLocationNum: 0
+      currentLocationNum: 0,
+      modalKey: 0
     }
   },
 
@@ -58,12 +62,6 @@ export default {
   },
 
   computed: {
-    tipBtnLabel() {
-      return this.showTip ? 'Убрать подсказку' : 'Показать подсказку'
-    },
-    modeBtnLabel() {
-      return this.hardMode ? 'Упростить' : 'Усложнить'
-    },
     currentLocation() {
       return LOCATIONS[this.currentLocationNum].name
     },
@@ -87,13 +85,17 @@ export default {
       this.hardMode = !this.hardMode
       this.refresh()
     },
-    changeLocation() {
-      this.currentLocationNum = (this.currentLocationNum + 1) % LOCATIONS.length
+    changeLocation(name) {
+      this.currentLocationNum = LOCATIONS.findIndex(x => x.name === name)
       this.refresh()
     },
     win() {
       this.showCongrats = true
-      this.changeLocation()
+    },
+    closeCongrats() {
+      this.showCongrats = false
+      // this.modalKey++
+      // this.changeLocation()
     }
   }
 }
@@ -105,6 +107,7 @@ main {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin-top: 40px;
 }
 
 header {
@@ -120,32 +123,6 @@ header {
   display: flex;
   gap: 20px;
   margin-bottom: 30px;
-}
-
-button {
-  width: 210px;
-  background-color: #0c67ae;
-  color: white;
-  font-weight: 700;
-  padding: 10px;
-  border-color: #0c67ae;
-  border-radius: 5px;
-  border-style: none;
-  transition: ease 0.3s opacity;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
-}
-
-button:hover {
-  cursor: pointer;
-  opacity: 0.9;
-}
-
-button:disabled:hover {
-  cursor: default;
-}
-
-button:disabled {
-  opacity: 0.8;
 }
 
 .modal {

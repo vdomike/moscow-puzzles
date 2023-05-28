@@ -105,9 +105,6 @@ export default {
         stroke: PRIMARY_COLOR,
         strokeWidth: 1
       },
-      textConfig: {
-        text: 'УРА! ПОБЕДА!', fontSize: 40, fill: 'white'
-      },
       gameState: {},
       cellsConfigs: {},
       imagesConfigs: {},
@@ -128,8 +125,6 @@ export default {
     this.boardX = (this.stageSize.width) / 2 - BOARD_WIDTH / 2
     this.boardConfig.x = this.boardX
     // временное решение с текстом
-    this.textConfig.x = this.boardX + 100
-    this.textConfig.y = this.boardConfig.y + BOARD_WIDTH / 2
     this.generateCells()
     this.generateImages()
     this.generateTip()
@@ -223,12 +218,13 @@ export default {
 
       if (isWin) {
         Object.values(this.imagesConfigs).forEach(config => config.draggable = false)
-        this.playSound('/public/sounds/win.wav')
+        this.playSound('/sounds/win.wav')
         this.$emit('win')
       }
     },
     playSound(url) {
-      const audio = new Audio(url);
+      const audioUrl = new URL(url, import.meta.url).href
+      const audio = new Audio(audioUrl);
       audio.play();
     }
   }

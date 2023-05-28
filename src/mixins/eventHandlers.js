@@ -98,7 +98,7 @@ export default {
     ondrop(e) {
       e.droppedShape.setX(e.target.attrs.x + CELL_OFFSET_X)
       e.droppedShape.setY(e.target.attrs.y + CELL_OFFSET_Y)
-      this.playSound('/public/sounds/drop.wav')
+      this.playSound('/sounds/drop.wav')
 
       // при каждом размещении картинок в ячейках, проверяем, собрали ли мы пазл
       this.checkIsWin()
