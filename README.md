@@ -1,35 +1,14 @@
-# moscow-puzzles
+# Игра «Московские пазлы»
 
-This template should help get you started developing with Vue 3 in Vite.
+## Ссылка на прототип игры:
+[https://moscow-puzzles.vercel.app/](https://moscow-puzzles.vercel.app/)
 
-## Recommended IDE Setup
+## Жанр игры:
+Браузерная казуальная игра.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## Описание игры:
+Простая игра, в которой пользователю необходимо из пазлов собрать какую-либо локацию или достопримечательность Москвы. В игре есть возможность поворачивать пазлы.
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+## Управление в игре осуществляется только мышкой:
+- Левая кнопка мыши – перетаскивание пазла.
+- Правая кнопка мыши – поворот пазла в случае, если стоит опция «Усложнить».
