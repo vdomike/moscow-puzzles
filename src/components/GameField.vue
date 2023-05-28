@@ -218,7 +218,7 @@ export default {
 
       if (isWin) {
         Object.values(this.imagesConfigs).forEach(config => config.draggable = false)
-        this.playSound('/sounds/win.wav')
+        this.playSound('/sounds/win.mp3')
         this.$emit('win')
       }
     },
