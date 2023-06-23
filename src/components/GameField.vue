@@ -1,7 +1,7 @@
 <template>
   <v-stage
     ref="stage"
-    :config="stageSize"
+    :config="stage.config"
     @dragmove="ondragmove"
     @dragstart="ondragstart"
     @dragenter="ondragenter"
@@ -12,23 +12,22 @@
     <v-layer ref="mainLayer">
       <v-rect
         ref="board"
-        :config="boardConfig"
+        :config="board.config"
       ></v-rect>
       <v-image
-        v-show="showTip"
         ref="tip"
-        :config="tipConfig"
+        :config="tip.config"
       ></v-image>
       <v-rect
-        v-for="ind of cellCount"
+        v-for="(cell, ind) in cells"
         :key="ind"
-        :config="cellsConfigs[ind - 1]"
+        :config="cell.config"
       ></v-rect>
       <v-image
-        v-for="ind of cellCount"
+        v-for="(puzzle, ind) in puzzles"
         :key="ind"
-        :ref="`image-${ind}`"
-        :config="imagesConfigs[ind - 1]"
+        :ref="($event) => getRef($event, puzzle)"
+        :config="puzzle.config"
         @dragmove="omImageDragMove"
         @click="onImageClick"
       />
@@ -39,25 +38,15 @@
 
 <script>
 import eventHandlers from '@/mixins/eventHandlers'
-import effects from '@/mixins/effects'
+import { Stage } from '@/helpers/models'
 import {
   NUM_ROWS,
-  NUM_COLS,
-  CELL_WIDTH,
-  CELL_HEIGHT,
-  BOARD_BORDER_WIDTH,
-  BOARD_WIDTH,
-  BOARD_HEIGHT,
-  ROTATIONS,
-  CELL_OFFSET_X,
-  CELL_OFFSET_Y,
-  PRIMARY_COLOR,
-  SECONDARY_COLOR
+  NUM_COLS
 } from '@/helpers/constants'
 
 
 export default {
-  mixins: [eventHandlers, effects],
+  mixins: [eventHandlers],
   props: {
     location: {
       type: String,
@@ -74,158 +63,60 @@ export default {
   },
   data() {
     return {
-      cellCount: NUM_COLS * NUM_ROWS,
-      stageSize: {
-        width: window.innerWidth - 100,
-        height: 600
-      },
-      boardConfig: {
-        x: 0,
-        y: 10,
-        width: BOARD_WIDTH,
-        height: BOARD_HEIGHT,
-        stroke: PRIMARY_COLOR,
-        fill: SECONDARY_COLOR,
-        strokeWidth: BOARD_BORDER_WIDTH,
-        shadowColor: 'black',
-        shadowOpacity: 0.5,
-        shadowOffset: { x: 2, y: 2 },
-        shadowBlur: 5,
-        cornerRadius: 3
-      },
-      tipConfig: {
-        y: 10,
-        width: BOARD_WIDTH,
-        height: BOARD_HEIGHT,
-        opacity: 0
-      },
-      cellConfig: {
-        width: CELL_WIDTH,
-        height: CELL_HEIGHT,
-        stroke: PRIMARY_COLOR,
-        strokeWidth: 1
-      },
-      gameState: {},
-      cellsConfigs: {},
-      imagesConfigs: {},
+      stage: new Stage(NUM_COLS, NUM_ROWS, this.location, this.hardMode),
+      puzzles: [],
+      cells: [],
       previousShape: null,
-      boardX: 0, // величина, на которую много завязано
+      board: {},
+      tip: {}
     }
   },
   watch: {
     showTip(val) {
       if (val) {
-        this.tipOpacityTransition.play()
+        this.tip.transition.play()
       } else {
-        this.tipOpacityTransition.reverse()
+        this.tip.transition.reverse()
       }
     }
   },
-  mounted() {
-    this.boardX = (this.stageSize.width) / 2 - BOARD_WIDTH / 2
-    this.boardConfig.x = this.boardX
-    // временное решение с текстом
-    this.generateCells()
-    this.generateImages()
-    this.generateTip()
+  async mounted() {
+    this.board = this.stage.generateBoard(this.$refs.board)
+    this.cells = this.stage.generateCells()
+    this.puzzles = await this.stage.generatePuzzles()
+    this.tip = await this.stage.generateTip(this.$refs.tip)
   },
   methods: {
-    generateCells() {
-      for (let i = 0; i < this.cellCount; i++) {
-        const cellColInd = i % NUM_COLS
-        const cellRowInd = Math.floor(i / NUM_ROWS)
-        const cellId = `cell-${i + 1}`
-
-        this.cellsConfigs[i] = {
-          ...this.cellConfig,
-          id: cellId,
-          x: this.boardConfig.x + BOARD_BORDER_WIDTH / 2 + cellColInd * CELL_WIDTH,
-          y: this.boardConfig.y + BOARD_BORDER_WIDTH / 2 + cellRowInd * CELL_HEIGHT
-        }
-      }
-    },
-    async generateImages() {
-      const arr = [...Array(16).keys()].map(i => `${i + 1}`)
-      const imgOrderArr = arr.sort(() => Math.random() - 0.5)
-      // придумать алгоритм вычисления позиций
-      const matrix = [[285 - CELL_OFFSET_X, 0 + CELL_OFFSET_Y], [145 - CELL_OFFSET_X, 0 + CELL_OFFSET_Y], [285 - CELL_OFFSET_X, 140 + CELL_OFFSET_Y], [145 - CELL_OFFSET_X, 140 + CELL_OFFSET_Y], [285 - CELL_OFFSET_X, 280 + CELL_OFFSET_Y], [145 - CELL_OFFSET_X, 280 + CELL_OFFSET_Y], [285 - CELL_OFFSET_X, 420 + CELL_OFFSET_Y], [145 - CELL_OFFSET_X, 420 + CELL_OFFSET_Y], [25 + CELL_OFFSET_X, 0 + CELL_OFFSET_Y], [165 + CELL_OFFSET_X, 0 + CELL_OFFSET_Y], [25 + CELL_OFFSET_X, 140 + CELL_OFFSET_Y], [165 + CELL_OFFSET_X, 140 + CELL_OFFSET_Y], [25 + CELL_OFFSET_X, 280 + CELL_OFFSET_Y], [165 + CELL_OFFSET_X, 280 + CELL_OFFSET_Y], [25 + CELL_OFFSET_X, 420 + CELL_OFFSET_Y], [165 + CELL_OFFSET_X, 420 + CELL_OFFSET_Y]]
-
-      for (let i = 0; i < this.cellCount; i++) {
-        const image = new window.Image()
-        const imgNum = imgOrderArr.shift()
-        const imgUrl = new URL(`/public/puzzle/${this.location}/${imgNum}.jpg`, import.meta.url).href
-        image.src = imgUrl
-
-        const imageId = `image-${imgNum}`
-
-        image.onload = () => {
-          const rotationChoice = Math.floor(Math.random() * ROTATIONS.length)
-          const rotation = ROTATIONS[rotationChoice]
-
-          this.imagesConfigs[i] = {
-            id: imageId,
-            // условие i <= this.cellCount / 2 распределяет картинки по обе стороны доски
-            x: i < this.cellCount / 2
-              ? this.boardX - matrix[i][0]
-              : this.boardX + BOARD_WIDTH + matrix[i][0],
-            y: matrix[i][1],
-            image,
-            rotation: this.hardMode ? rotation : 0,
-            shadowColor: 'black',
-            shadowOpacity: 0.5,
-            shadowOffset: { x: 1, y: 1 },
-            shadowBlur: 3,
-            offset: {
-              x: CELL_OFFSET_X,
-              y: CELL_OFFSET_Y,
-            },
-            draggable: true
-          }
-          this.gameState[imageId] = {
-            cellId: `cell-${imgNum}`,
-            image: this.imagesConfigs[i],
-            cellGuessed: false,
-            rotationGuessed: !this.hardMode || rotation % 360 === 0
-          }
-        }
-      }
-    },
-    generateTip() {
-      const image = new window.Image()
-      const imgUrl = new URL(`/public/puzzle/${this.location}/tip.jpg`, import.meta.url).href
-      image.src = imgUrl
-      image.onload = () => {
-        this.tipConfig = {
-          ...this.tipConfig,
-          x: this.boardX,
-          image
-        }
-      }
-    },
     getCellId(ind) {
       const cellColInd = ind % NUM_COLS
       const cellRowInd = Math.floor(ind / NUM_ROWS)
       return `cell-${cellColInd}-${cellRowInd}`
     },
     shapeIsCell(shape) {
-      return shape?.attrs.id?.includes('cell')
+      return shape?.getAttr('class') === 'Cell'
     },
     shapeIsImage(shape) {
-      return shape?.attrs.id?.includes('image')
+      return shape?.getAttr('class') === 'Puzzle'
     },
     checkIsWin() {
-      const isWin = Object.values(this.gameState).every(({ cellGuessed, rotationGuessed }) => cellGuessed && rotationGuessed)
+      const isWin = Object.values(this.puzzles).every(puzzle => puzzle.state.cellGuessed && puzzle.state.rotationGuessed)
+
+      console.log('isWin', isWin, 'this.puzzles', this.puzzles)
 
       if (isWin) {
-        Object.values(this.imagesConfigs).forEach(config => config.draggable = false)
+        Object.values(this.puzzles).forEach(config => config.draggable = false)
         this.playSound('/sounds/win.mp3')
         this.$emit('win')
       }
     },
     playSound(url) {
       const audioUrl = new URL(url, import.meta.url).href
-      const audio = new Audio(audioUrl);
-      audio.play();
+      const audio = new Audio(audioUrl)
+      audio.play()
+    },
+    getRef(el, puzzle) {
+      puzzle.setNode(el)
+      // puzzle.setTransition()
     }
   }
 }
